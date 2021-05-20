@@ -16,9 +16,11 @@ export default class Adapter {
     getCredentials() {
         return new Promise((resolve, reject) => {
 
-            var filename = this.loader.file.name;
-
-            if (!filename) return reject('No filename found');
+            // var filename = this.loader.file.name;
+            console.log(this.loader);
+            const timeStamp = new Date().toLocaleTimeString();
+            const filename = `img-file-${timeStamp}`;
+            // if (!filename) return reject('No filename found');
 
             var xhr = new XMLHttpRequest();
             
