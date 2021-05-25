@@ -6,33 +6,40 @@ export default class Adapter {
     }
 
     upload() {
-        return this.getCredentials().then(this.uploadImage.bind(this));
+        return this.loadFile().then(getCredentials().then(this.uploadImage.bind(this)));
     }
 
     abort() {
         if (this.xhr) this.xhr.abort();
     }
 
+    loadFile() {
+      return new Promise((resolve, reject) => {
+        this.loader.file.then(file => {
+          this.file = file;
+          resolve();
+        })
+      })
+    }
+
     getCredentials() {
         return new Promise((resolve, reject) => {
 
-            // var filename = this.loader.file.name;            
+            const filename = this.file.name;
             const timeStamp = btoa(new Date().toLocaleTimeString());
-            const filename = `img-file-${timeStamp}`;
-            // if (!filename) return reject('No filename found');
 
             var xhr = new XMLHttpRequest();
-            
+
             xhr.withCredentials = false;
             xhr.open('GET', this.url + '?filename=' + filename, true);
             xhr.responseType = 'json';
             xhr.setRequestHeader('Content-Type', 'application/json');
-            
+
             xhr.addEventListener('error', err => reject('crederr'));
             xhr.addEventListener('abort', err => reject('credabort'));
             xhr.addEventListener('load', function () {
                 var res = xhr.response;
-                
+
                 if (!res) return reject('No response from s3 creds url');
 
                 resolve(res);
@@ -54,22 +61,22 @@ export default class Adapter {
                 data.append(param, s3creds.params[param]);
             }
 
-            data.append('Content-Type', this.loader.file.type)
+            data.append('Content-Type', this.file.type)
 
-            data.append('file', this.loader.file);
-            
+            data.append('file', this.file);
+
             var xhr = this.xhr = new XMLHttpRequest();
-            
+
             xhr.withCredentials = false;
             xhr.responseType = 'document';
-            
+
             xhr.addEventListener('error', err => reject('s3err'));
             xhr.addEventListener('abort', err => reject('s3abort'));
             xhr.addEventListener('load', () => {
                 const res = xhr.response;
-                
+
                 if (!res) return reject('No Response');
-    
+
                 if (res.querySelector('Error')) {
                     return reject(res.querySelector('Code').textContent + ': ' + res.querySelector('Message').textContent);
                 }
@@ -91,7 +98,7 @@ export default class Adapter {
             if (xhr.upload) {
                 xhr.upload.addEventListener('progress', e => {
                     if (!e.lengthComputable) return;
-                    
+
                     this.loader.uploadTotal = e.total;
                     this.loader.uploaded = e.loaded;
                 });
