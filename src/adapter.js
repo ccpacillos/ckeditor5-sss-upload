@@ -6,7 +6,7 @@ export default class Adapter {
     }
 
     upload() {
-        return this.loadFile().then(getCredentials().then(this.uploadImage.bind(this)));
+        return this.loadFile().then(this.getCredentials().then(this.uploadImage.bind(this)));
     }
 
     abort() {
@@ -14,20 +14,18 @@ export default class Adapter {
     }
 
     loadFile() {
-      return new Promise((resolve, reject) => {
-        this.loader.file.then(file => {
-          this.file = file;
-          resolve();
+        return new Promise((resolve, reject) => {
+            this.loader.file.then(file => {
+                this.file = file;
+                resolve();
+            })
         })
-      })
     }
 
     getCredentials() {
         return new Promise((resolve, reject) => {
 
             const filename = this.file.name;
-            const timeStamp = btoa(new Date().toLocaleTimeString());
-
             var xhr = new XMLHttpRequest();
 
             xhr.withCredentials = false;
