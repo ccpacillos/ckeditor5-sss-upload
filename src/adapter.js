@@ -6,7 +6,9 @@ export default class Adapter {
     }
 
     upload() {
-        return this.loadFile().then(this.getCredentials.bind(this)).then(this.uploadImage.bind(this));
+        return this.loadFile().then(() => {
+          return this.getCredentials().then(this.uploadImage.bind(this));
+        });
     }
 
     abort() {
