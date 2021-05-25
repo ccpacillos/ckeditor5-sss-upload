@@ -1,8 +1,7 @@
 export default class Adapter {
-    constructor(loader, url, mapUrl) {
+    constructor(loader, url) {
         this.loader = loader;
         this.url = url;
-        this.mapUrl = mapUrl || (({ location }) => location);
     }
 
     upload() {
@@ -92,7 +91,9 @@ export default class Adapter {
                     return reject('NoLocation: No location in s3 POST response');
                 }
 
-                resolve({ default: this.mapUrl(info) });
+                resolve({
+                  default: s3creds.file_url
+                });
             });
 
             if (xhr.upload) {

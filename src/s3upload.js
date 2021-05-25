@@ -21,8 +21,6 @@ export default class S3Upload extends Plugin {
             return;
         }
 
-        const mapUrl = this.editor.config.get('s3Upload.mapUrl');
-
-        this.editor.plugins.get('FileRepository').createUploadAdapter = loader => new Adapter(loader, url, mapUrl);
+        this.editor.plugins.get('FileRepository').createUploadAdapter = loader => new Adapter(loader, url);
     }
 }

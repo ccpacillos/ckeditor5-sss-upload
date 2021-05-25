@@ -70,6 +70,7 @@ The endpoint will receive a filename as a query parameter, and will need to resp
 ```json
 {
     "endpoint_url": " ... ",
+    "file_url": "...",
     "params": {
         "key": " ... ",
         "acl": " ... ",
