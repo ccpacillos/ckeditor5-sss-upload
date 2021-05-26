@@ -15,12 +15,18 @@ export default class S3Upload extends Plugin {
 
     init() {
         const url = this.editor.config.get('s3Upload.policyUrl');
+        const token = this.editor.config.get('s3Upload.token');
 
         if (!url) {
-            console.warn('s3Upload.policyUrl is not configured')
+            console.warn('s3Upload.policyUrl is not configured');
             return;
         }
 
-        this.editor.plugins.get('FileRepository').createUploadAdapter = loader => new Adapter(loader, url);
+        if (!token) {
+            console.warn('s3Upload.token is not configured');
+            return;
+        }
+
+        this.editor.plugins.get('FileRepository').createUploadAdapter = loader => new Adapter(loader, url, token);
     }
 }

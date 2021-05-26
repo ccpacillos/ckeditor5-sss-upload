@@ -1,7 +1,8 @@
 export default class Adapter {
-    constructor(loader, url) {
+    constructor(loader, url, token) {
         this.loader = loader;
         this.url = url;
+        this.token = token;
     }
 
     upload() {
@@ -33,6 +34,7 @@ export default class Adapter {
             xhr.open('GET', this.url + '?filename=' + filename, true);
             xhr.responseType = 'json';
             xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
 
             xhr.addEventListener('error', err => reject('crederr'));
             xhr.addEventListener('abort', err => reject('credabort'));
