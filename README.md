@@ -67,8 +67,8 @@ The endpoint will receive `filename` and `baseType` query parameters, and will n
 
 ```json
 {
-    "endpoint_url": " ... ", // S3 endpoint url
-    "file_url": "...", // url of the file after upload
+    "endpoint_url": " ... ",
+    "file_url": "...",
     "params": {
         "key": " ... ",
         "acl": " ... ",
