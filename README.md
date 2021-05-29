@@ -81,3 +81,6 @@ The endpoint will receive `filename` and `baseType` query parameters, and will n
     }
 }
 ```
+- `endpoint_url` -  endpoint to S3 to be used for upload.
+- `file_url` - the resulting url of the uploaded file.
+- `params` - upload params.
