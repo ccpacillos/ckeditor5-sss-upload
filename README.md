@@ -63,12 +63,12 @@ ClassicEditor.create(document.querySelector("#editor"), {
 
 ### Backend
 
-The endpoint will receive a filename as a query parameter, and will need to respond with s3 credentials JSON in the following format.
+The endpoint will receive `filename` and `baseType` query parameters, and will need to respond with s3 credentials JSON in the following format.
 
 ```json
 {
-    "endpoint_url": " ... ",
-    "file_url": "...",
+    "endpoint_url": " ... ", // S3 endpoint url
+    "file_url": "...", // url of the file after upload
     "params": {
         "key": " ... ",
         "acl": " ... ",

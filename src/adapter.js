@@ -30,8 +30,9 @@ export default class Adapter {
             const filename = this.file.name;
             var xhr = new XMLHttpRequest();
 
+            const [fileBaseType] = this.file.type.split('/');
             xhr.withCredentials = false;
-            xhr.open('GET', this.url + '?filename=' + filename, true);
+            xhr.open('GET', this.url + '?filename=' + filename + '&baseType=' + fileBaseType, true);
             xhr.responseType = 'json';
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.setRequestHeader('Authorization', `Bearer ${this.token}`);
