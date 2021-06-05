@@ -7,7 +7,7 @@ export default class Adapter {
 
     upload() {
         return this.loadFile().then(() => {
-          return this.getCredentials().then(this.uploadImage.bind(this));
+            return this.getCredentials().then(this.uploadImage.bind(this));
         });
     }
 
@@ -72,7 +72,10 @@ export default class Adapter {
             xhr.withCredentials = false;
             xhr.responseType = 'document';
 
-            xhr.addEventListener('error', err => reject('s3err'));
+            xhr.addEventListener('error', err => {
+                console.log(err);
+                reject('s3err')
+            });
             xhr.addEventListener('abort', err => reject('s3abort'));
             xhr.addEventListener('load', () => {
                 const res = xhr.response;
@@ -95,7 +98,7 @@ export default class Adapter {
                 }
 
                 resolve({
-                  default: s3creds.file_url
+                    default: s3creds.file_url
                 });
             });
 
