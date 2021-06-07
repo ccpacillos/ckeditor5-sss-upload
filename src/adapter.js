@@ -1,3 +1,5 @@
+const LOCAL_STORAGE_KEY = 'ck-editor-identifi-upload';
+
 export default class Adapter {
     constructor(loader, url, token) {
         this.loader = loader;
@@ -54,6 +56,24 @@ export default class Adapter {
 
     uploadImage(s3creds) {
         return new Promise((resolve, reject) => {
+            const localStorageInfo = JSON.parse(
+              window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+            );
+            const [fileBaseType] = this.file.type.split('/');
+            const temporaryUniqueId = Math.floor(Math.random() * 100);
+            const fileUploadInfo = {
+              id: temporaryUniqueId,
+              type: fileBaseType,
+              filename: this.file.name,
+              progress: 0,
+              uploaded: false,
+              error: null,
+            };
+            localStorageInfo.push(fileUploadInfo);
+            window.localStorage.setItem(
+              LOCAL_STORAGE_KEY,
+              JSON.stringify(localStorageInfo)
+            );
 
             var data = new FormData();
 
@@ -72,18 +92,42 @@ export default class Adapter {
             xhr.withCredentials = false;
             xhr.responseType = 'document';
 
+            const updateLocalStorageOnError = (err) => {
+              console.log(err);
+              fileUploadInfo.error = err;
+              window.localStorage.setItem(
+                LOCAL_STORAGE_KEY,
+                JSON.stringify(localStorageInfo)
+              );
+              setTimeout(() => {
+                window.localStorage.setItem(
+                  LOCAL_STORAGE_KEY,
+                  JSON.stringify(localStorageInfo.filter(({ id }) => temporaryUniqueId !== id))
+                );
+              }, 3000);
+            }
+
             xhr.addEventListener('error', err => {
-                console.log(err);
-                reject('s3err')
+                updateLocalStorageOnError(err);
+                reject('s3err');
             });
-            xhr.addEventListener('abort', err => reject('s3abort'));
+            xhr.addEventListener('abort', err => {
+                updateLocalStorageOnError(err);
+                reject('s3abort');
+            });
             xhr.addEventListener('load', () => {
                 const res = xhr.response;
 
-                if (!res) return reject('No Response');
+                if (!res) {
+                  const error = 'No Response.';
+                  updateLocalStorageOnError(error);
+                  return reject(error);
+                };
 
                 if (res.querySelector('Error')) {
-                    return reject(res.querySelector('Code').textContent + ': ' + res.querySelector('Message').textContent);
+                    const error = res.querySelector('Code').textContent + ': ' + res.querySelector('Message').textContent;
+                    updateLocalStorageOnError(error);
+                    return reject(error);
                 }
 
                 const info = {
@@ -94,8 +138,27 @@ export default class Adapter {
                 };
 
                 if (!info.location) {
-                    return reject('NoLocation: No location in s3 POST response');
+                    const error = 'NoLocation: No location in s3 POST response';
+                    updateLocalStorageOnError(error);
+                    return reject(error);
                 }
+
+                fileUploadInfo.progress = 100;
+                fileUploadInfo.uploaded = true;
+
+                window.localStorage.setItem(
+                  LOCAL_STORAGE_KEY,
+                  JSON.stringify(localStorageInfo)
+                );
+
+                setTimeout(() => {
+                  window.localStorage.setItem(
+                    LOCAL_STORAGE_KEY,
+                    JSON.stringify(
+                      localStorageInfo.filter(({ id }) => temporaryUniqueId !== id)
+                    )
+                  );
+                }, 3000);
 
                 resolve({
                     default: s3creds.file_url
@@ -108,12 +171,18 @@ export default class Adapter {
 
                     this.loader.uploadTotal = e.total;
                     this.loader.uploaded = e.loaded;
+
+                    fileUploadInfo.progress = e.total;
+                    window.localStorage.setItem(
+                      LOCAL_STORAGE_KEY,
+                      JSON.stringify(localStorageInfo)
+                    );
                 });
             }
 
             xhr.open('POST', s3creds.endpoint_url, true);
             xhr.send(data);
-
         });
     }
+
 }
