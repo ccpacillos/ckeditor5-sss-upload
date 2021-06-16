@@ -127,7 +127,7 @@ export default class Adapter {
 
                 this.setLocalStorageUploadInfo(fileUploadInfo);
                 setTimeout(() => {
-                  this.clearUploadInfo(fileUploadId);
+                  this.clearUploadInfo(fileUploadInfo.id);
                 }, 3000);
 
                 resolve({
