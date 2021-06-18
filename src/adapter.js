@@ -129,7 +129,7 @@ export default class Adapter {
                 this.updateLocalStorageUploadInfo(fileUploadInfo);
                 setTimeout(() => {
                   this.clearUploadInfo(fileUploadInfo.id);
-                }, 3000);
+                }, 300);
 
                 resolve({
                     default: s3creds.file_url
@@ -225,7 +225,7 @@ export default class Adapter {
 
       setTimeout(() => {
         this.clearUploadInfo(fileUploadId);
-      }, 3000);
+      }, 300);
     }
 
     clearUploadInfo(fileUploadId) {
