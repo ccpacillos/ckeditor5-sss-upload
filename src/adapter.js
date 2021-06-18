@@ -1,4 +1,5 @@
-const LOCAL_STORAGE_KEY = 'ck-editor-identifi-upload';
+const FILE_UPLOAD_INFO_KEY = 'ck-editor-identifi-upload';
+const FILE_UPLOAD_ABORTED_KEY = 'ck-editor-identifi-upload-aborted';
 
 export default class Adapter {
     constructor(loader, url, token) {
@@ -154,7 +155,7 @@ export default class Adapter {
 
     initializeStorageUploadInfo(info) {
       const currentLocalStorageData = JSON.parse(
-        window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
       const localStorageDataWithoutOldInfo = currentLocalStorageData.filter(
@@ -164,20 +165,26 @@ export default class Adapter {
       localStorageDataWithoutOldInfo.push(info);
 
       window.localStorage.setItem(
-        LOCAL_STORAGE_KEY,
+        FILE_UPLOAD_INFO_KEY,
         JSON.stringify(localStorageDataWithoutOldInfo)
       )
     }
 
+    checkIfCancelled() {
+      const cancelled = window.localStorage.getItem(FILE_UPLOAD_ABORTED_KEY);
+
+      return cancelled === 'true';
+    }
+
     updateLocalStorageUploadInfo(info) {
       const currentLocalStorageData = JSON.parse(
-        window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]';
       );
 
-      if (currentLocalStorageData.filter(
-        ({ id }) => info.id === id
-      ).length === 0) {
+      if (this.cancelled()) {
         this.abort();
+        window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
+        this.clearUploadInfo(info.id);
         return;
       }
 
@@ -188,20 +195,24 @@ export default class Adapter {
       localStorageDataWithoutOldInfo.push(info);
 
       window.localStorage.setItem(
-        LOCAL_STORAGE_KEY,
+        FILE_UPLOAD_INFO_KEY,
         JSON.stringify(localStorageDataWithoutOldInfo)
       )
     }
 
     updateLocalStorageOnError(fileUploadId, error) {
       const currentLocalStorageData = JSON.parse(
-        window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
-      if (currentLocalStorageData.length ===0) return;
+      if (this.cancelled()) {
+        window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
+        this.clearUploadInfo(fileUploadId);
+        return;
+      }
 
       window.localStorage.setItem(
-        LOCAL_STORAGE_KEY,
+        FILE_UPLOAD_INFO_KEY,
         JSON.stringify(currentLocalStorageData.map(
           (fileUploadInfo) => {
             return {
@@ -219,13 +230,11 @@ export default class Adapter {
 
     clearUploadInfo(fileUploadId) {
       const currentLocalStorageData = JSON.parse(
-        window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
-      if (currentLocalStorageData.length ===0) return;
-
       window.localStorage.setItem(
-        LOCAL_STORAGE_KEY,
+        FILE_UPLOAD_INFO_KEY,
         JSON.stringify(
           currentLocalStorageData.filter(({ id }) => fileUploadId !== id)
         )
