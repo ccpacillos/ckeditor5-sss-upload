@@ -9,7 +9,7 @@ export default class Adapter {
 
     upload() {
         return this.loadFile().then(() => {
-            return this.getCredentials().then(this.uploadImage.bind(this));
+            return this.getCredentials().then(this.uploadFile.bind(this));
         });
     }
 
@@ -54,7 +54,7 @@ export default class Adapter {
         });
     }
 
-    uploadImage(s3creds) {
+    uploadFile(s3creds) {
         return new Promise((resolve, reject) => {
             const [fileBaseType] = this.file.type.split('/');
             const fileUploadInfo = {
@@ -66,7 +66,7 @@ export default class Adapter {
               error: null,
             };
 
-            this.setLocalStorageUploadInfo(fileUploadInfo);
+            this.initializeStorageUploadInfo(fileUploadInfo);
 
             var data = new FormData();
 
@@ -125,7 +125,7 @@ export default class Adapter {
                 fileUploadInfo.progress = 100;
                 fileUploadInfo.uploaded = true;
 
-                this.setLocalStorageUploadInfo(fileUploadInfo);
+                this.updateLocalStorageUploadInfo(fileUploadInfo);
                 setTimeout(() => {
                   this.clearUploadInfo(fileUploadInfo.id);
                 }, 3000);
@@ -143,7 +143,7 @@ export default class Adapter {
                     this.loader.uploaded = e.loaded;
 
                     fileUploadInfo.progress = e.total;
-                    this.setLocalStorageUploadInfo(fileUploadInfo);
+                    this.updateLocalStorageUploadInfo(fileUploadInfo);
                 });
             }
 
@@ -152,10 +152,34 @@ export default class Adapter {
         });
     }
 
-    setLocalStorageUploadInfo(info) {
+    initializeStorageUploadInfo(info) {
       const currentLocalStorageData = JSON.parse(
         window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
       );
+
+      const localStorageDataWithoutOldInfo = currentLocalStorageData.filter(
+        ({ id }) => info.id !== id
+      );
+
+      localStorageDataWithoutOldInfo.push(info);
+
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEY,
+        JSON.stringify(localStorageDataWithoutOldInfo)
+      )
+    }
+
+    updateLocalStorageUploadInfo(info) {
+      const currentLocalStorageData = JSON.parse(
+        window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
+      );
+
+      if (currentLocalStorageData.filter(
+        ({ id }) => info.id === id
+      ).length === 0) {
+        this.abort();
+        return;
+      }
 
       const localStorageDataWithoutOldInfo = currentLocalStorageData.filter(
         ({ id }) => info.id !== id
@@ -173,6 +197,8 @@ export default class Adapter {
       const currentLocalStorageData = JSON.parse(
         window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
       );
+
+      if (currentLocalStorageData.length ===0) return;
 
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY,
@@ -195,6 +221,8 @@ export default class Adapter {
       const currentLocalStorageData = JSON.parse(
         window.localStorage.getItem(LOCAL_STORAGE_KEY) || '[]'
       );
+
+      if (currentLocalStorageData.length ===0) return;
 
       window.localStorage.setItem(
         LOCAL_STORAGE_KEY,
