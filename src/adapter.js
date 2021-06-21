@@ -178,7 +178,7 @@ export default class Adapter {
 
     updateLocalStorageUploadInfo(info) {
       const currentLocalStorageData = JSON.parse(
-        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]';
+        window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
       if (this.cancelled()) {
