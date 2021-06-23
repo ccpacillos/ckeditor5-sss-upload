@@ -181,7 +181,7 @@ export default class Adapter {
         window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
-      if (this.cancelled()) {
+      if (this.checkIfCancelled()) {
         this.abort();
         window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
         this.clearUploadInfo(info.id);
@@ -205,7 +205,7 @@ export default class Adapter {
         window.localStorage.getItem(FILE_UPLOAD_INFO_KEY) || '[]'
       );
 
-      if (this.cancelled()) {
+      if (this.checkIfCancelled()) {
         window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
         this.clearUploadInfo(fileUploadId);
         return;
