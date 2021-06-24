@@ -143,7 +143,7 @@ export default class Adapter {
                     this.loader.uploadTotal = e.total;
                     this.loader.uploaded = e.loaded;
 
-                    fileUploadInfo.progress = e.total;
+                    fileUploadInfo.progress = (e.loaded / e.total) * 100;
                     this.updateLocalStorageUploadInfo(fileUploadInfo);
                 });
             }
