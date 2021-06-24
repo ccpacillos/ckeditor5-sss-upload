@@ -93,7 +93,7 @@ export default class Adapter {
             });
             xhr.addEventListener('abort', err => {
               this.updateLocalStorageOnError(fileUploadInfo.id, err);
-                reject('s3abort');
+                // reject('s3abort');
             });
             xhr.addEventListener('load', () => {
                 const res = xhr.response;
@@ -185,6 +185,7 @@ export default class Adapter {
       );
 
       if (this.checkIfCancelled()) {
+        this.abort();
         window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
         this.clearUploadInfo(info.id);
         return;
