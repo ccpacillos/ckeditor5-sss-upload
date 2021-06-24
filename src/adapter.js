@@ -143,8 +143,11 @@ export default class Adapter {
                     this.loader.uploadTotal = e.total;
                     this.loader.uploaded = e.loaded;
 
-                    fileUploadInfo.progress = (e.loaded / e.total) * 100;
-                    this.updateLocalStorageUploadInfo(fileUploadInfo);
+                    try {
+                      fileUploadInfo.progress = (e.loaded / e.total) * 100;
+                      this.updateLocalStorageUploadInfo(fileUploadInfo);
+                    } catch (error) {
+                    }
                 });
             }
 
@@ -182,7 +185,6 @@ export default class Adapter {
       );
 
       if (this.checkIfCancelled()) {
-        this.abort();
         window.localStorage.removeItem(FILE_UPLOAD_ABORTED_KEY);
         this.clearUploadInfo(info.id);
         return;
